@@ -9,6 +9,7 @@ import {parseUserId} from '../auth/utils'
 const todoAccess = new TodoAccess() 
 
 
+
 export async function createTodo(
   createTodoRequest: CreateTodoRequest,
   jwt: string
@@ -35,4 +36,19 @@ export async function updateTodo(
   const userId = parseUserId(jwt)
   return await todoAccess.updateTodo({userId, ...updateTodoRequest})
   
+}
+
+export async function getTodos(
+  jwt: string
+  ):Promise <TodoItem[]>{
+  const userId = parseUserId(jwt)
+  return await todoAccess.getTodos({userId})
+}
+
+export async function deleteTodo(
+  todoId: string,
+  jwt: string
+):Promise<TodoItem>{
+  const userId = parseUserId(jwt)
+  return await todoAccess.deleteTodo({userId, todoId})
 }

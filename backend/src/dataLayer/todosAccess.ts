@@ -6,6 +6,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 
 import {TodoItem} from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate'
+import {User} from '../models/User'
 //import {TodoUpdate} from '../models/TodoUpdate'
 
 
@@ -13,7 +14,8 @@ export class TodoAccess{
 
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
-    private readonly todosTable = process.env.TODOS_TABLE) {
+    private readonly todosTable = process.env.TODOS_TABLE, 
+    private readonly userIdIndex = process.env.USER_ID_INDEX){
   }
 
   async createTodo(todo: TodoItem): Promise<TodoItem>{
@@ -45,7 +47,36 @@ export class TodoAccess{
     return todo as TodoItem
   }
 
+  async getTodos(user: User):Promise<TodoItem[]>{
+    const result = await this.docClient.query({
+      TableName: this.todosTable,
+      IndexName: this.userIdIndex,
+      KeyConditionExpression: "userId = :userId",
+      ExpressionAttributeValues:{
+        ":userId": user.userId        
+      }
+    }).promise()
+    const todos = result.Items ? result.Items : []
+    return todos as TodoItem[] 
+  }
+
+  async deleteTodo(todo):Promise<TodoItem>{
+    await this.docClient.delete({
+      TableName: this.todosTable,
+      Key:{
+        todoId: todo.todoId
+      },
+      ConditionExpression: "userId = :userId",
+      ExpressionAttributeValues:{
+        "userId": todo.userId
+      }
+    }).promise()
+    return todo
+  }
+
 }
+
+
 
 function createDynamoDBClient() {
   if (process.env.IS_OFFLINE) {
