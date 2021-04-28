@@ -4,7 +4,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { updateTodo } from '../../businessLogic/todos'
+import { createLogger } from '../../utils/logger'
 
+const logger = createLogger('update todo')
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -15,11 +17,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const split = auth.split(' ')
   const jwt = split[1]
 
-  console.log(todoId, updatedTodo);
+  logger.info('update todo', updateTodo, todoId)
 
   const todoUpdate = {todoId, ...updatedTodo}
 
   const updateItem = await updateTodo(todoUpdate, jwt)
+  
+  logger.info('done updated item', updateItem)
 
   return{
     statusCode:201,
