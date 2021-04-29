@@ -30,6 +30,7 @@ export class TodoAccess{
     await this.docClient.update({
       TableName: this.todosTable,
       Key:{
+        userId: todo.userId,
         todoId: todo.todoId
       },
       ExpressionAttributeNames:{"#N": "name"},
@@ -64,6 +65,7 @@ export class TodoAccess{
     await this.docClient.delete({
       TableName: this.todosTable,
       Key:{
+        userId: todo.userId,
         todoId: todo.todoId
       },
       ConditionExpression: "userId = :userId",
@@ -78,6 +80,7 @@ export class TodoAccess{
     await this.docClient.update({
       TableName: this.todosTable,
       Key:{
+        userId: todo.userId,
         todoId: todo.todoId
       },
       UpdateExpression: "set attachmentUrl = :attachmentUrl",
